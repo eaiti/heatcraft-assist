@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  body{margin:0;background:#f0f3f6;-webkit-font-smoothing:antialiased}
+  *{box-sizing:border-box}
+  a{color:#2D6FB7;text-decoration:none}
+  a:hover{color:#003263;text-decoration:underline}
+  button,input,select,textarea{font:inherit;color:inherit}
+  @keyframes hspulse{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+</style>
+</helmet>
+
+<div style="display:grid;grid-template-columns:246px minmax(0,1fr);min-height:100vh;max-width:1600px;margin:0 auto;background:#ffffff;font-family:'Open Sans',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.55;color:#101b28">
+
+  <nav style="background:#0B2036;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:auto">
+    <div style="background:#ffffff;padding:16px 18px;display:flex;flex-direction:column;gap:8px">
+      <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:26px;letter-spacing:.01em;color:#0B2036;line-height:1">HEATCRAFT</div>
+      <div style="font-family:'Montserrat',sans-serif;font-size:15px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#2D6FB7">intelliGen Assist</div>
+    </div>
+
+    <button onClick="{{ newInquiry }}" style="margin:14px 12px 4px;padding:10px;border-radius:6px;border:1px dashed rgba(255,255,255,.3);background:none;color:#ffffff;cursor:pointer;font-family:'Montserrat',sans-serif;font-size:15px;letter-spacing:.06em;text-transform:uppercase;font-weight:600" style-hover="background:rgba(255,255,255,.09)">+ New Inquiry</button>
+
+    <div style="padding:14px 12px 4px">
+      <h4 style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#93AFC9;margin:0 0 8px 6px;font-weight:600">Workspace</h4>
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <sc-for list="{{ navWork }}" as="n" hint-placeholder-count="4">
+          <button onClick="{{ n.go }}" style="display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border:0;border-radius:6px;text-align:left;cursor:pointer;font-size:13.5px;color:#E4EDE6;background:{{ n.bg }};box-shadow:{{ n.mark }}">{{ n.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="padding:14px 12px 4px">
+      <h4 style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#93AFC9;margin:0 0 8px 6px;font-weight:600">Administration</h4>
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <sc-for list="{{ navAdmin }}" as="n" hint-placeholder-count="2">
+          <button onClick="{{ n.go }}" style="display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border:0;border-radius:6px;text-align:left;cursor:pointer;font-size:13.5px;color:#E4EDE6;background:{{ n.bg }};box-shadow:{{ n.mark }}">{{ n.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="padding:16px 12px 4px">
+      <h4 style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#93AFC9;margin:0 0 8px 6px;font-weight:600">Recent inquiries</h4>
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <sc-for list="{{ history }}" as="h" hint-placeholder-count="3">
+          <button onClick="{{ h.open }}" style="display:block;width:100%;text-align:left;background:none;border:0;color:#C9DCEC;padding:7px 10px;border-radius:6px;cursor:pointer;font-size:12.5px;line-height:1.35" style-hover="background:rgba(255,255,255,.07)">{{ h.q }}<span style="display:block;color:#93AFC9;font-size:10.5px;margin-top:2px;font-family:'IBM Plex Mono',monospace">{{ h.model }}</span></button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="margin-top:auto;padding:14px 18px;border-top:1px solid rgba(255,255,255,.1);font-size:11px;color:#93AFC9;line-height:1.5">Prototype · EAi Technologies<br>Content sourced from real, uploaded Heatcraft/intelliGen documents — answers are scripted for this demo, not live retrieval</div>
+  </nav>
+
+  <div style="display:flex;flex-direction:column;min-width:0">
+    <div id="topbar" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:13px 24px;border-bottom:1px solid #dde5ee;background:#ffffff;position:sticky;top:0;z-index:6">
+      <div>
+        <h1 style="font-family:'Montserrat',sans-serif;font-size:21px;font-weight:600;margin:0;letter-spacing:.01em">{{ paneTitle }}</h1>
+        <div style="font-size:12px;color:#5d7086">{{ paneSub }}</div>
+      </div>
+      <div style="flex:1"></div>
+      <div style="display:flex;border:1px solid #dde5ee;border-radius:100px;overflow:hidden;background:#f3f6fa">
+        <sc-for list="{{ roles }}" as="r" hint-placeholder-count="4">
+          <button onClick="{{ r.pick }}" style="border:0;padding:7px 14px;cursor:pointer;font-size:12.5px;white-space:nowrap;background:{{ r.bg }};color:{{ r.fg }};font-weight:{{ r.fw }}">{{ r.label }}</button>
+        </sc-for>
+      </div>
+      <span style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:#8a5a00;background:#fdf4e3;border:1px solid #e8cfa0;padding:4px 9px;border-radius:100px">Prototype</span>
+    </div>
+    <div style="height:4px;display:flex"><i style="flex:1;background:#0B2036"></i><i style="flex:1;background:#003263"></i><i style="flex:1;background:#2D6FB7"></i><i style="flex:1;background:#48C1E1"></i><i style="flex:1;background:#3079BC"></i></div>
+
+    <sc-if value="{{ isChat }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-columns:{{ chatCols }}">
+        <div style="min-width:0;display:flex;flex-direction:column">
+          <sc-if value="{{ showFaqHero }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:22px 26px 8px;min-height:50vh;max-width:760px">
+              <h2 style="font-family:'Montserrat',sans-serif;font-size:25px;font-weight:700;margin:0 0 8px;letter-spacing:-.01em;text-wrap:balance">Ask about the intelliGen Refrigeration Controller</h2>
+              <p style="color:#3d4f61;font-size:14px;line-height:1.6;margin:0 0 4px;max-width:58ch">{{ roleNote }}</p>
+              <p style="font-size:12px;color:#5d7086;margin:0 0 22px">Scoped to the intelliGen pilot — answers come from the uploaded intelliGen and Bohn Low Profile documents only, cited to the page.</p>
+              <div style="display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))">
+                <sc-for list="{{ chips }}" as="c" hint-placeholder-count="4">
+                  <button onClick="{{ c.ask }}" style="text-align:left;border:1px solid #dde5ee;background:#ffffff;border-radius:10px;padding:14px 16px;cursor:pointer" style-hover="border-color:#2D6FB7">
+                    <b style="display:block;font-family:'Montserrat',sans-serif;font-size:13.5px;font-weight:600;color:#101b28">{{ c.t }}</b>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ hasAsked }}">
+          <div style="padding:22px 26px 8px;min-height:50vh">
+            <sc-for list="{{ messages }}" as="m" hint-placeholder-count="2">
+              <div id="msg-{{ m.id }}" style="margin:0 0 20px;display:flex;flex-direction:column">
+
+                <sc-if value="{{ m.isUser }}">
+                  <div style="max-width:640px;align-self:flex-end">
+                    <div style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#5d7086;margin-bottom:6px;text-align:right">{{ m.who }}</div>
+                    <div style="background:#003263;color:#ffffff;padding:11px 15px;border-radius:14px 14px 4px 14px">{{ m.text }}</div>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ m.isThinking }}">
+                  <div style="max-width:800px">
+                    <div style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#5d7086;margin-bottom:6px">intelliGen Assist</div>
+                    <div style="display:flex;gap:7px;align-items:center;color:#5d7086;font-size:13px">
+                      <i style="width:6px;height:6px;border-radius:50%;background:#2D6FB7;animation:hspulse 1.1s infinite"></i>
+                      <i style="width:6px;height:6px;border-radius:50%;background:#2D6FB7;animation:hspulse 1.1s infinite .15s"></i>
+                      <i style="width:6px;height:6px;border-radius:50%;background:#2D6FB7;animation:hspulse 1.1s infinite .3s"></i>
+                      <span style="margin-left:4px">{{ m.text }}</span>
+                    </div>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ m.isAnswer }}">
+                  <div style="max-width:800px">
+                    <div style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#5d7086;margin-bottom:6px;display:flex;gap:8px"><b style="color:#2D6FB7;font-weight:600;letter-spacing:.16em">intelliGen Assist</b><span>{{ m.model }}</span></div>
+                    <div style="background:#ffffff;border:1px solid #dde5ee;border-radius:10px;box-shadow:0 1px 2px rgba(9,26,45,.06),0 10px 26px -16px rgba(9,26,45,.35);overflow:hidden">
+                      <div style="padding:16px 18px">
+                        <ul style="margin:0 0 12px;padding:0;list-style:none;font-size:12.5px;color:#5d7086;font-family:'IBM Plex Mono',monospace;display:flex;flex-direction:column;gap:3px">
+                          <sc-for list="{{ m.pipe }}" as="p" hint-placeholder-count="3">
+                            <li><span style="color:#1E5FA0;font-weight:700">✓</span> {{ p.t }}</li>
+                          </sc-for>
+                        </ul>
+                        <h3 style="font-family:'Montserrat',sans-serif;font-size:20px;margin:0 0 8px;font-weight:600;text-wrap:balance">{{ m.title }}</h3>
+                        <p style="margin:0 0 10px;color:#3d4f61;text-wrap:pretty">{{ m.lede }}</p>
+                        <div style="border-left:3px solid #2D6FB7;background:#E8F1FA;padding:10px 13px;border-radius:0 6px 6px 0;font-size:13px;margin:14px 0">
+                          <b style="font-family:'Montserrat',sans-serif;letter-spacing:.1em;text-transform:uppercase;font-size:11px;display:block;margin-bottom:2px">{{ m.roleTitle }}</b>{{ m.roleNote }}
+                        </div>
+
+                        <sc-if value="{{ m.hasSteps }}">
+                          <div>
+                            <h4 style="font-family:'Montserrat',sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#5d7086;margin:18px 0 9px;font-weight:600">Procedure</h4>
+                            <ol style="list-style:none;margin:0;padding:0">
+                              <sc-for list="{{ m.steps }}" as="s" hint-placeholder-count="4">
+                                <li style="position:relative;padding:0 0 13px 36px">
+                                  <span style="position:absolute;left:0;top:1px;width:23px;height:23px;border-radius:50%;background:#E8F1FA;color:#003263;font-family:'IBM Plex Mono',monospace;font-size:11px;display:grid;place-items:center;font-weight:500">{{ s.n }}</span>
+                                  <b style="display:block;font-weight:600">{{ s.t }}</b>
+                                  <em style="font-style:normal;color:#5d7086;font-size:13px;display:block;margin-top:2px;text-wrap:pretty">{{ s.d }}</em>
+                                </li>
+                              </sc-for>
+                            </ol>
+                          </div>
+                        </sc-if>
+
+                        <sc-if value="{{ m.hasKv }}">
+                          <div>
+                            <h4 style="font-family:'Montserrat',sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#5d7086;margin:18px 0 9px;font-weight:600">Reference values</h4>
+                            <div style="display:grid;grid-template-columns:auto 1fr;gap:5px 16px;font-size:13px">
+                              <sc-for list="{{ m.kv }}" as="k" hint-placeholder-count="4">
+                                <div style="display:contents"><div style="color:#5d7086">{{ k.k }}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px">{{ k.v }}</div></div>
+                              </sc-for>
+                            </div>
+                          </div>
+                        </sc-if>
+
+                        <sc-for list="{{ m.notes }}" as="nt" hint-placeholder-count="1">
+                          <div style="border-left:3px solid {{ nt.bd }};background:{{ nt.bg }};padding:10px 13px;border-radius:0 6px 6px 0;font-size:13px;margin:14px 0 0">
+                            <b style="font-family:'Montserrat',sans-serif;letter-spacing:.1em;text-transform:uppercase;font-size:11px;display:block;margin-bottom:2px">{{ nt.t }}</b>{{ nt.d }}
+                          </div>
+                        </sc-for>
+                      </div>
+
+                      <sc-if value="{{ m.hasImg }}">
+                        <div style="border-top:1px solid #e8eef5;padding:16px 18px;background:#f5f8fb;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">
+                          <sc-for list="{{ m.imgs }}" as="g" hint-placeholder-count="2">
+                            <figure style="margin:0">
+                              <img src="{{ g.src }}" alt="{{ g.cap }}" style="width:100%;height:200px;object-fit:contain;display:block;background:#ffffff;border:1px solid #dde5ee;border-radius:6px;padding:8px" />
+                              <figcaption style="font-size:11.5px;color:#5d7086;margin-top:7px;font-family:'IBM Plex Mono',monospace;line-height:1.45;text-wrap:pretty">{{ g.cap }}</figcaption>
+                            </figure>
+                          </sc-for>
+                        </div>
+                      </sc-if>
+
+                      <div style="display:flex;flex-wrap:wrap;gap:8px;padding:12px 18px;border-top:1px solid #e8eef5;background:#f5f8fb">
+                        <sc-for list="{{ m.cites }}" as="c" hint-placeholder-count="2">
+                          <button onClick="{{ c.open }}" style="display:inline-flex;align-items:center;gap:7px;border:1px solid #dde5ee;background:#ffffff;border-radius:100px;padding:5px 11px;font-size:11.5px;cursor:pointer;color:#3d4f61" style-hover="border-color:#2D6FB7;color:#2D6FB7">{{ c.doc }}<code style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#5d7086">{{ c.ref }}</code></button>
+                        </sc-for>
+                      </div>
+                      <div style="display:flex;gap:8px;flex-wrap:wrap;padding:12px 18px;border-top:1px solid #e8eef5">
+                        <button onClick="{{ actSendPhone }}" style="border:1px solid #003263;background:#003263;color:#ffffff;border-radius:6px;padding:6px 12px;font-size:12.5px;cursor:pointer">Send to my phone</button>
+                        <button onClick="{{ actOrder }}" style="border:1px solid #dde5ee;background:#ffffff;border-radius:6px;padding:6px 12px;font-size:12.5px;cursor:pointer;color:#3d4f61" style-hover="border-color:#2D6FB7;color:#2D6FB7">Check wholesaler availability</button>
+                        <button onClick="{{ actEscalate }}" style="border:1px solid #dde5ee;background:#ffffff;border-radius:6px;padding:6px 12px;font-size:12.5px;cursor:pointer;color:#3d4f61" style-hover="border-color:#2D6FB7;color:#2D6FB7">Escalate to Heatcraft Technical Support</button>
+                        <button onClick="{{ actHelpful }}" style="border:1px solid #dde5ee;background:#ffffff;border-radius:6px;padding:6px 12px;font-size:12.5px;cursor:pointer;color:#3d4f61" style-hover="border-color:#2D6FB7;color:#2D6FB7">This helped</button>
+                      </div>
+                    </div>
+                  </div>
+                </sc-if>
+
+              </div>
+            </sc-for>
+          </div>
+          </sc-if>
+
+          <div style="position:sticky;bottom:0;background:#ffffff;border-top:1px solid #dde5ee;padding:13px 26px 18px;margin-top:auto">
+            <sc-if value="{{ hasAsked }}">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:11px">
+              <sc-for list="{{ chips }}" as="c" hint-placeholder-count="4">
+                <button onClick="{{ c.ask }}" style="border:1px solid #dde5ee;background:#f3f6fa;border-radius:100px;padding:7px 13px;font-size:12.5px;cursor:pointer;color:#3d4f61;text-align:left" style-hover="border-color:#2D6FB7;color:#2D6FB7">{{ c.t }}</button>
+              </sc-for>
+            </div>
+            </sc-if>
+            <div style="display:flex;gap:10px;align-items:flex-end">
+              <textarea rows="1" placeholder="Describe the symptom, an error code, or paste a model number…" value="{{ query }}" onChange="{{ onQuery }}" onKeyDown="{{ onKey }}" style="flex:1;resize:none;border:1px solid #dde5ee;border-radius:9px;padding:11px 13px;background:#f7f9fc;min-height:46px;max-height:150px;font-family:'Open Sans',sans-serif"></textarea>
+              <button onClick="{{ send }}" style="background:#003263;color:#ffffff;border:0;border-radius:9px;padding:0 20px;height:46px;cursor:pointer;font-family:'Montserrat',sans-serif;font-size:16px;letter-spacing:.06em;text-transform:uppercase;font-weight:600">Ask</button>
+            </div>
+            <div style="font-size:11px;color:#5d7086;margin-top:9px">Answers come from Heatcraft intelliGen documentation and Heatcraft-supplied components only. Anything outside that library is flagged, never guessed.</div>
+          </div>
+        </div>
+
+        <sc-if value="{{ hasAsked }}" hint-placeholder-val="{{ true }}">
+        <aside style="border-left:1px solid #dde5ee;background:#f5f8fb;padding:20px;display:flex;flex-direction:column;gap:18px">
+          <div>
+            <h4 style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#5d7086;margin:0 0 9px;font-weight:600">Equipment in context</h4>
+            <div style="background:#ffffff;border:1px solid #dde5ee;border-radius:9px;padding:14px">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5d7086;letter-spacing:.04em">NAMEPLATE MODEL</div>
+              <div style="font-family:'Montserrat',sans-serif;font-size:22px;font-weight:700;margin:1px 0 2px">{{ unit.model }}</div>
+              <div style="font-size:12.5px;color:#5d7086">{{ unit.family }}</div>
+              <div style="font-size:12.5px;color:#5d7086;margin-top:6px">{{ unit.line }}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:11px">
+                <sc-for list="{{ unitTags }}" as="t" hint-placeholder-count="3">
+                  <span style="font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:3px 8px;border-radius:4px;background:#E8F1FA;color:#003263">{{ t.t }}</span>
+                </sc-for>
+              </div>
+              <div style="margin-top:12px">
+                <sc-for list="{{ unitStats }}" as="s" hint-placeholder-count="4">
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px dashed #e3eaf2"><span style="color:#5d7086;font-size:12.5px">{{ s.k }}</span><b style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500">{{ s.v }}</b></div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h4 style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#5d7086;margin:0 0 9px;font-weight:600">Change equipment</h4>
+            <select onChange="{{ onUnit }}" value="{{ unitId }}" style="width:100%;border:1px solid #dde5ee;background:#ffffff;border-radius:6px;padding:9px 10px">
+              <sc-for list="{{ equipment }}" as="e" hint-placeholder-count="6">
+                <option value="{{ e.id }}">{{ e.optLabel }}</option>
+              </sc-for>
+            </select>
+          </div>
+          <div>
+            <h4 style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#5d7086;margin:0 0 9px;font-weight:600">Site</h4>
+            <select style="width:100%;border:1px solid #dde5ee;background:#ffffff;border-radius:6px;padding:9px 10px">
+              <option>Site 01 — Walk-in Cooler, Tucker GA</option>
+              <option>Site 02 — Walk-in Freezer, Dallas TX</option>
+              <option>Site 03 — Multi-Evap Cooler, Eastvale CA</option>
+              <option>Site 04 — Walk-in Cooler, Louisville KY</option>
+            </select>
+          </div>
+          <div>
+            <h4 style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#5d7086;margin:0 0 9px;font-weight:600">Retrieval scope (uploaded documents)</h4>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e3eaf2"><span style="color:#5d7086;font-size:12.5px">Documents uploaded</span><b style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500">7</b></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e3eaf2"><span style="color:#5d7086;font-size:12.5px">Pages indexed</span><b style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500">191</b></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e3eaf2"><span style="color:#5d7086;font-size:12.5px">Legacy Beacon II / QRC retrofit guide</span><b style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500">Included</b></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#5d7086;font-size:12.5px">Baseline: intelliGen support call volume</span><b style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500">Not yet published</b></div>
+          </div>
+          <div>
+            <h4 style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#5d7086;margin:0 0 9px;font-weight:600">This unit's open items</h4>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e3eaf2"><span style="color:#5d7086;font-size:12.5px"><i style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;background:#b7791f"></i>ER16 Low Superheat logged</span><b style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500">2d</b></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e3eaf2"><span style="color:#5d7086;font-size:12.5px"><i style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;background:#1E5FA0"></i>Firmware check completed</span><b style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500">9d</b></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:#5d7086;font-size:12.5px"><i style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;background:#ef3742"></i>A2L RDS sensor check due</span><b style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500">open</b></div>
+          </div>
+        </aside>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isDoc }}">
+      <div style="padding:26px 30px 40px;max-width:1060px">
+        <div style="font-size:11.5px;color:#5d7086;font-family:'Open Sans',sans-serif;margin-bottom:14px">Products <span style="color:#c2ccd8">/</span> {{ dp.badge }} <span style="color:#c2ccd8">/</span> {{ unit.family }}</div>
+
+        <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
+          <div>
+            <h2 style="font-family:'Montserrat',sans-serif;font-size:32px;font-weight:700;margin:0;letter-spacing:-.01em;line-height:1.1">{{ unit.model }}</h2>
+            <div style="font-family:'Montserrat',sans-serif;font-size:17px;font-weight:500;color:#003263;margin-top:4px">{{ dp.tagline }}</div>
+          </div>
+          <span style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#ffffff;background:#3079BC;padding:5px 10px;border-radius:3px;margin-top:6px">{{ dp.badge }}</span>
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 22px">
+          <sc-for list="{{ unitTags }}" as="t" hint-placeholder-count="3">
+            <span style="font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:4px 9px;border-radius:3px;background:#E8F1FA;color:#003263">{{ t.t }}</span>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ hasDpPhoto }}">
+          <figure style="margin:0 0 24px;background:#f5f8fb;border:1px solid #dde5ee;border-radius:10px;padding:18px">
+            <img src="{{ dpPhoto }}" alt="{{ unit.model }}" style="width:100%;max-height:340px;object-fit:contain;display:block" />
+            <figcaption style="font-size:11.5px;color:#5d7086;margin-top:10px;font-family:'IBM Plex Mono',monospace">Figure from the Heatcraft intelliGen installation and operation manual for this model</figcaption>
+          </figure>
+        </sc-if>
+
+        <div style="display:grid;gap:22px;grid-template-columns:minmax(0,1.35fr) minmax(240px,.65fr);align-items:start">
+          <div>
+            <h3 style="font-family:'Montserrat',sans-serif;font-size:20px;font-weight:700;margin:0 0 8px">Product Details</h3>
+            <p style="margin:0;color:#3d4f61;font-size:14.5px;line-height:1.65;text-wrap:pretty">{{ dp.details }}</p>
+
+            <h4 style="font-family:'Montserrat',sans-serif;font-size:15.5px;font-weight:700;margin:26px 0 10px">Key Features</h4>
+            <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ dpFeatures }}" as="f" hint-placeholder-count="5">
+                <li style="display:flex;gap:11px;align-items:flex-start;font-size:14px;color:#3d4f61"><i style="width:6px;height:6px;border-radius:1px;background:#2D6FB7;flex:0 0 6px;margin-top:7px"></i><span style="text-wrap:pretty">{{ f.t }}</span></li>
+              </sc-for>
+            </ul>
+
+            <h4 style="font-family:'Montserrat',sans-serif;font-size:15.5px;font-weight:700;margin:26px 0 10px">Benefits</h4>
+            <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ dpBenefits }}" as="b" hint-placeholder-count="4">
+                <li style="display:flex;gap:11px;align-items:flex-start;font-size:14px;color:#3d4f61"><i style="width:6px;height:6px;border-radius:1px;background:#3079BC;flex:0 0 6px;margin-top:7px"></i><span style="text-wrap:pretty">{{ b.t }}</span></li>
+              </sc-for>
+            </ul>
+          </div>
+
+          <div style="background:#f5f8fb;border:1px solid #dde5ee;border-radius:9px;padding:16px 18px">
+            <h4 style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#5d7086;margin:0 0 12px;font-weight:700">Specification</h4>
+            <sc-for list="{{ unitStats }}" as="s" hint-placeholder-count="4">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px dashed #e3eaf2"><span style="color:#5d7086;font-size:12.5px">{{ s.k }}</span><b style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500">{{ s.v }}</b></div>
+            </sc-for>
+            <button onClick="{{ dpAsk }}" style="width:100%;margin-top:16px;background:#003263;color:#ffffff;border:0;border-radius:5px;padding:11px;cursor:pointer;font-family:'Montserrat',sans-serif;font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700">Ask about this product</button>
+          </div>
+        </div>
+
+        <div style="height:2px;background:#dde5ee;margin:32px 0 24px"></div>
+
+        <h3 style="font-family:'Montserrat',sans-serif;font-size:20px;font-weight:700;margin:0 0 14px">Downloadable Resources</h3>
+        <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))">
+          <sc-for list="{{ dpResources }}" as="r" hint-placeholder-count="4">
+            <button onClick="{{ r.open }}" style="display:flex;gap:13px;align-items:center;background:#ffffff;border:1px solid #dde5ee;border-radius:8px;padding:14px;text-align:left;cursor:pointer" style-hover="border-color:#2D6FB7">
+              <span style="flex:0 0 38px;height:46px;border:1.5px solid #003263;border-radius:3px;position:relative;background:#E8F1FA"><i style="position:absolute;left:7px;right:7px;top:11px;height:2px;background:#003263;opacity:.55"></i><i style="position:absolute;left:7px;right:7px;top:19px;height:2px;background:#003263;opacity:.55"></i><i style="position:absolute;left:7px;right:14px;top:27px;height:2px;background:#003263;opacity:.55"></i></span>
+              <span><b style="display:block;font-family:'Montserrat',sans-serif;font-size:13.5px;font-weight:600;line-height:1.3">{{ r.t }}</b><code style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5d7086">{{ r.pn }}</code></span>
+            </button>
+          </sc-for>
+        </div>
+
+        <p style="font-size:11.5px;color:#5d7086;margin:22px 0 0;max-width:70ch">Prototype — document titles and part numbers above are drawn from the real uploaded manual. In the live build each card links to the actual PDF, and the assistant cites these same documents by page, as it does in this demo.</p>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isFleet }}">
+      <div style="padding:24px">
+        <h2 style="font-family:'Montserrat',sans-serif;font-size:24px;font-weight:600;margin:0 0 4px">Equipment Lookup</h2>
+        <p style="color:#5d7086;margin:0 0 18px;max-width:62ch;text-wrap:pretty">Scan the nameplate, type a model, or pick a family. The assistant resolves the model to its product family and loads only that family's documentation before answering.</p>
+        <input placeholder="Nameplate model, or family (try: iRC, BEL, iFM, Beacon)" value="{{ fleetQ }}" onChange="{{ onFleetQ }}" style="width:100%;max-width:470px;border:1px solid #dde5ee;background:#ffffff;border-radius:6px;padding:10px 12px;margin-bottom:18px">
+        <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))">
+          <sc-for list="{{ fleetList }}" as="e" hint-placeholder-count="6">
+            <button onClick="{{ e.pick }}" style="background:#ffffff;border:1px solid #dde5ee;border-radius:9px;padding:14px;text-align:left;cursor:pointer" style-hover="border-color:#2D6FB7">
+              <div style="font-family:'Montserrat',sans-serif;font-size:18px;font-weight:600">{{ e.model }}</div>
+              <div style="font-size:12.5px;color:#5d7086">{{ e.family }}</div>
+              <div style="font-size:12.5px;color:#3d4f61;margin-top:7px">{{ e.line }}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:10px">
+                <sc-for list="{{ e.tagList }}" as="t" hint-placeholder-count="3">
+                  <span style="font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:3px 8px;border-radius:4px;background:#E8F1FA;color:#003263">{{ t.t }}</span>
+                </sc-for>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:11px;padding-top:9px;border-top:1px dashed #e3eaf2"><span style="color:#5d7086;font-size:12.5px">Primary doc</span><b style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500">{{ e.doc }}</b></div>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isLibrary }}">
+      <div style="padding:24px">
+        <h2 style="font-family:'Montserrat',sans-serif;font-size:24px;font-weight:600;margin:0 0 4px">Document Library</h2>
+        <p style="color:#5d7086;margin:0 0 18px;max-width:62ch;text-wrap:pretty">Installation &amp; operation manuals, quick start guides, technical guides and FAQs, scoped to the intelliGen pilot. New uploads are ingested, chunked and searchable in minutes — no reindexing window.</p>
+        <button onClick="{{ actUpload }}" style="width:100%;max-width:900px;border:2px dashed #cbd8e6;border-radius:10px;padding:28px;text-align:center;color:#5d7086;background:#ffffff;cursor:pointer;display:block" style-hover="border-color:#2D6FB7;color:#2D6FB7">
+          <b style="display:block;font-family:'Montserrat',sans-serif;font-size:17px;color:#101b28;letter-spacing:.02em">Upload manual, technical guide, or bulletin</b>
+          PDF only · auto-extraction of figures, tables and part numbers
+        </button>
+        <div style="height:18px"></div>
+        <div style="overflow-x:auto;border:1px solid #dde5ee;border-radius:9px;background:#ffffff;max-width:1000px">
+          <table style="border-collapse:collapse;width:100%;font-size:13px;min-width:600px">
+            <thead>
+              <tr>
+                <th style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#5d7086;text-align:left;padding:10px 14px;border-bottom:1px solid #dde5ee;font-weight:600">Document</th>
+                <th style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#5d7086;text-align:left;padding:10px 14px;border-bottom:1px solid #dde5ee;font-weight:600">Covers</th>
+                <th style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#5d7086;text-align:left;padding:10px 14px;border-bottom:1px solid #dde5ee;font-weight:600">P/N</th>
+                <th style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#5d7086;text-align:left;padding:10px 14px;border-bottom:1px solid #dde5ee;font-weight:600">Pages</th>
+                <th style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#5d7086;text-align:left;padding:10px 14px;border-bottom:1px solid #dde5ee;font-weight:600">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ docs }}" as="d" hint-placeholder-count="6">
+                <tr>
+                  <td style="padding:10px 14px;border-bottom:1px solid #eef3f8">{{ d.title }}</td>
+                  <td style="padding:10px 14px;border-bottom:1px solid #eef3f8;color:#5d7086">{{ d.covers }}</td>
+                  <td style="padding:10px 14px;border-bottom:1px solid #eef3f8;font-family:'IBM Plex Mono',monospace">{{ d.pn }}</td>
+                  <td style="padding:10px 14px;border-bottom:1px solid #eef3f8;font-family:'IBM Plex Mono',monospace">{{ d.pages }}</td>
+                  <td style="padding:10px 14px;border-bottom:1px solid #eef3f8"><span style="font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:3px 8px;border-radius:4px;background:{{ d.bg }};color:{{ d.fg }}">{{ d.status }}</span></td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isParts }}">
+      <div style="padding:24px">
+        <h2 style="font-family:'Montserrat',sans-serif;font-size:24px;font-weight:600;margin:0 0 4px">Parts &amp; Diagrams</h2>
+        <p style="color:#5d7086;margin:0 0 18px;max-width:62ch;text-wrap:pretty">Every answer that names a part links straight to the intelliGen part number. Heatcraft doesn't run its own consumer parts storefront — ordering routes through your local wholesaler, with warranty stock held in Tifton GA, Dallas TX, Eastvale CA and Louisville KY for next-day availability (per the intelliGen FAQ).</p>
+        <div style="background:#ffffff;border:1px solid #dde5ee;border-radius:10px;max-width:760px;overflow:hidden">
+          <div style="padding:16px 18px">
+            <h3 style="font-family:'Montserrat',sans-serif;font-size:18px;margin:0 0 6px;font-weight:600">intelliGen — Ship Loose / Service Parts</h3>
+            <p style="color:#5d7086;margin:0">Part numbers below come straight from the intelliGen Refrigeration Controller I&amp;O Manual (H-IM-iRC · 25009901, p. 48–49) and the intelliGen Controls Parts, Kits &amp; Price List (rev. 03-26).</p>
+          </div>
+          <div style="overflow-x:auto;border-top:1px solid #eef3f8">
+            <table style="border-collapse:collapse;width:100%;font-size:13px;min-width:560px">
+              <thead>
+                <tr>
+                  <th style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#5d7086;text-align:left;padding:10px 14px;border-bottom:1px solid #dde5ee;font-weight:600">Ref</th>
+                  <th style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#5d7086;text-align:left;padding:10px 14px;border-bottom:1px solid #dde5ee;font-weight:600">Component</th>
+                  <th style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#5d7086;text-align:left;padding:10px 14px;border-bottom:1px solid #dde5ee;font-weight:600">intelliGen P/N</th>
+                  <th style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#5d7086;text-align:left;padding:10px 14px;border-bottom:1px solid #dde5ee;font-weight:600">Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ partsRows }}" as="p" hint-placeholder-count="6">
+                  <tr>
+                    <td style="padding:10px 14px;border-bottom:1px solid #eef3f8;font-family:'IBM Plex Mono',monospace">{{ p.ref }}</td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #eef3f8">{{ p.name }}</td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #eef3f8;font-family:'IBM Plex Mono',monospace">{{ p.pn }}</td>
+                    <td style="padding:10px 14px;border-bottom:1px solid #eef3f8;color:#5d7086">{{ p.note }}</td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;padding:13px 18px;border-top:1px solid #eef3f8">
+            <button onClick="{{ actOrder }}" style="border:1px solid #003263;background:#003263;color:#ffffff;border-radius:6px;padding:6px 12px;font-size:12.5px;cursor:pointer">Check wholesaler availability</button>
+            <button onClick="{{ actStock }}" style="border:1px solid #dde5ee;background:#ffffff;border-radius:6px;padding:6px 12px;font-size:12.5px;cursor:pointer;color:#3d4f61" style-hover="border-color:#2D6FB7;color:#2D6FB7">Open in THE HUB</button>
+            <button onClick="{{ actExploded }}" style="border:1px solid #dde5ee;background:#ffffff;border-radius:6px;padding:6px 12px;font-size:12.5px;cursor:pointer;color:#3d4f61" style-hover="border-color:#2D6FB7;color:#2D6FB7">Open board layout figure</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isAgent }}">
+      <div style="padding:24px">
+        <h2 style="font-family:'Montserrat',sans-serif;font-size:24px;font-weight:600;margin:0 0 4px">Agent Management</h2>
+        <p style="color:#5d7086;margin:0 0 20px;max-width:62ch;text-wrap:pretty">How a question becomes a trusted answer. Retrieval is fenced to the resolved intelliGen equipment family, and the guardrail step is what keeps the assistant from inventing a procedure.</p>
+        <div style="display:grid;gap:10px;max-width:900px;margin-bottom:24px">
+          <sc-for list="{{ pipeline }}" as="s" hint-placeholder-count="5">
+            <div style="display:flex;gap:14px;align-items:flex-start;background:#ffffff;border:1px solid #dde5ee;border-left:4px solid {{ s.accent }};border-radius:8px;padding:14px 16px">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#003263;background:#E8F1FA;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;flex:0 0 26px;font-weight:500">{{ s.n }}</div>
+              <div>
+                <b style="font-family:'Montserrat',sans-serif;font-size:16px;letter-spacing:.01em">{{ s.t }}</b>
+                <div style="color:#5d7086;font-size:13px;margin-top:2px;text-wrap:pretty">{{ s.d }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));max-width:1000px">
+          <div style="background:#ffffff;border:1px solid #dde5ee;border-radius:10px;padding:16px 18px">
+            <h3 style="font-family:'Montserrat',sans-serif;font-size:18px;margin:0 0 10px;font-weight:600">Guardrails</h3>
+            <sc-for list="{{ guardrails }}" as="g" hint-placeholder-count="4">
+              <label style="display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid #eef3f8">
+                <input type="checkbox" checked="{{ g.on }}" onChange="{{ g.toggle }}" style="margin-top:4px;accent-color:#003263;width:16px;height:16px">
+                <span><b style="display:block;font-weight:600">{{ g.t }}</b><em style="font-style:normal;color:#5d7086;font-size:12.5px">{{ g.d }}</em></span>
+              </label>
+            </sc-for>
+          </div>
+          <div style="background:#ffffff;border:1px solid #dde5ee;border-radius:10px;padding:16px 18px">
+            <h3 style="font-family:'Montserrat',sans-serif;font-size:18px;margin:0 0 10px;font-weight:600">Model routing &amp; performance</h3>
+            <sc-for list="{{ routing }}" as="r" hint-placeholder-count="6">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px dashed #e3eaf2"><span style="color:#5d7086;font-size:12.5px">{{ r.k }}</span><b style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500">{{ r.v }}</b></div>
+            </sc-for>
+            <h4 style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#5d7086;margin:18px 0 6px;font-weight:600">Escalation</h4>
+            <p style="margin:0;color:#5d7086;font-size:13px;text-wrap:pretty">Unanswerable inquiries route to Heatcraft Technical Support — (800) 321-1881 normal hours, (877) 482-7238 after hours — with the full transcript, the resolved model, and the documents already checked attached, instead of a tech guessing across eight separate tools and several hundred PDFs.</p>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isUsers }}">
+      <div style="padding:24px">
+        <h2 style="font-family:'Montserrat',sans-serif;font-size:24px;font-weight:600;margin:0 0 4px">User Access</h2>
+        <p style="color:#5d7086;margin:0 0 18px;max-width:62ch;text-wrap:pretty">One assistant, four audiences. Access level controls which documents are reachable and how much procedural depth an answer carries — scoped to THE HUB's registered users for the pilot.</p>
+        <div style="overflow-x:auto;border:1px solid #dde5ee;border-radius:9px;background:#ffffff;max-width:1000px">
+          <table style="border-collapse:collapse;width:100%;font-size:13px;min-width:640px">
+            <thead>
+              <tr>
+                <th style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#5d7086;text-align:left;padding:10px 14px;border-bottom:1px solid #dde5ee;font-weight:600">User</th>
+                <th style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#5d7086;text-align:left;padding:10px 14px;border-bottom:1px solid #dde5ee;font-weight:600">Organization</th>
+                <th style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#5d7086;text-align:left;padding:10px 14px;border-bottom:1px solid #dde5ee;font-weight:600">Role</th>
+                <th style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#5d7086;text-align:left;padding:10px 14px;border-bottom:1px solid #dde5ee;font-weight:600">Document scope</th>
+                <th style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#5d7086;text-align:left;padding:10px 14px;border-bottom:1px solid #dde5ee;font-weight:600">Last active</th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ users }}" as="u" hint-placeholder-count="5">
+                <tr>
+                  <td style="padding:10px 14px;border-bottom:1px solid #eef3f8">{{ u.name }}</td>
+                  <td style="padding:10px 14px;border-bottom:1px solid #eef3f8;color:#5d7086">{{ u.org }}</td>
+                  <td style="padding:10px 14px;border-bottom:1px solid #eef3f8">{{ u.role }}</td>
+                  <td style="padding:10px 14px;border-bottom:1px solid #eef3f8;color:#5d7086">{{ u.scope }}</td>
+                  <td style="padding:10px 14px;border-bottom:1px solid #eef3f8;font-family:'IBM Plex Mono',monospace">{{ u.last }}</td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        <div style="height:16px"></div>
+        <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));max-width:1000px">
+          <button onClick="{{ actInvite }}" style="background:#ffffff;border:1px solid #dde5ee;border-radius:9px;padding:14px;text-align:left;cursor:pointer" style-hover="border-color:#2D6FB7"><div style="font-family:'Montserrat',sans-serif;font-size:17px;font-weight:600">Invite user</div><div style="font-size:12.5px;color:#5d7086">Email invite scoped to a role</div></button>
+          <button onClick="{{ actSso }}" style="background:#ffffff;border:1px solid #dde5ee;border-radius:9px;padding:14px;text-align:left;cursor:pointer" style-hover="border-color:#2D6FB7"><div style="font-family:'Montserrat',sans-serif;font-size:17px;font-weight:600">SSO mapping</div><div style="font-size:12.5px;color:#5d7086">Map THE HUB registration groups to roles</div></button>
+          <button onClick="{{ actExport }}" style="background:#ffffff;border:1px solid #dde5ee;border-radius:9px;padding:14px;text-align:left;cursor:pointer" style-hover="border-color:#2D6FB7"><div style="font-family:'Montserrat',sans-serif;font-size:17px;font-weight:600">Usage export</div><div style="font-size:12.5px;color:#5d7086">Questions asked, documentation gaps found</div></button>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</div>
+
+<sc-if value="{{ hasToast }}">
+  <div style="position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#0B2036;color:#ffffff;padding:11px 18px;border-radius:100px;font-size:13px;z-index:40;font-family:'Open Sans',sans-serif;box-shadow:0 10px 30px -12px rgba(9,26,45,.6)">{{ toast }}</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;defaultRole&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;install&quot;,&quot;service&quot;,&quot;store&quot;,&quot;customer&quot;],&quot;default&quot;:&quot;service&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Behavior&quot;}}">
+const EQUIP = [
+  {id:"irc",model:"iRC",family:"intelliGen Refrigeration Controller — Factory-Mounted Evaporator Control",temp:"Walk-in cooler / freezer evaporators (per install)",ref:"R-22, R-404A, R-407A/C/F, R-448A, R-449A, R-507, R-454A, R-454C, R-455A (per FAQ Q18 and the Evaporator Temperature tables)",ctrl:"iRC board + iRC-UI, Carel electronic expansion valve (EXV-Carel standard)",doc:"H-IM-iRC · 25009901",line:"Factory-mounted electronic control for evaporators — automatic superheat, room temperature and intelligent defrost control, up to 8 evaporators per condensing unit",tags:["Controller","Factory-Mounted","Not for Hot Gas Defrost"]},
+  {id:"iwc-msc",model:"iWC / MSC",family:"intelliGen Webserver Card (iWC) & Multi-System Control Card (MSC)",temp:"N/A — accessory card, not a refrigerant-side component",ref:"N/A",ctrl:"Plugs into the iRC board above the CPU; Wi-Fi Direct + Ethernet",doc:"25010401",line:"Optional field-installable cards for local/remote monitoring (iWC, 1 per system) or multi-system lead-lag control across up to 32 systems (MSC)",tags:["Accessory Card","Remote Monitoring","Optional"]},
+  {id:"bel-lop",model:"Bohn Low Profile (BEL/BEG)",family:"Bohn Low Profile Unit Coolers",temp:"Per defrost style — Air, Electric (Hot Gas not intelliGen-compatible)",ref:"A2L (R-454A/R-454C/R-455A) and HFC (R-404A/R-407A/C/F/R-448A/R-449A), dual-refrigerant compatible per model",ctrl:"intelliGen iRC factory option (packages B0200/B0201, G0210–G0212)",doc:"BN-LOP",line:"Bohn-brand low profile evaporator; 2-Speed EC motors standard on Air Defrost, 1-Speed EC on Electric/Hot Gas Defrost; optional factory Refrigerant Detection System (RDS) for A2L",tags:["Bohn","Low Profile","Unit Cooler"]},
+  {id:"legacy-retrofit",model:"Beacon II™ / QRC™ (Legacy)",family:"Legacy Beacon II / Quick Response Controller Unit Coolers",temp:"Per original application",ref:"Not stated — retrofit reuses the existing sensors, EXV and pressure transducer",ctrl:"Beacon II or QRC being replaced by an intelliGen retrofit kit",doc:"25011001",line:"Low Profile, Center Mount, Low Velocity Center Mount, Medium Profile and Large/High Profile unit coolers originally shipped with Beacon II or QRC controls",tags:["Retrofit","Legacy Control","Field Upgrade"]},
+  {id:"ifm",model:"iFM Kit",family:"intelliGen Field Mount (iFM) Kit",temp:"N/A — universal field-mount kit",ref:"Not pre-selected — sensors/EXV specified at order",ctrl:"Field-mount iRC, IP65 rated, remote-mountable up to 40 ft",doc:"iG Parts List",line:"For new unit coolers without factory-mounted controls, or to bring a mechanical-control unit cooler onto the intelliGen platform in the field",tags:["Field-Mount","Universal Kit","New Install"]}
+];
+
+const DOCS = [
+  ["intelliGen Refrigeration Controller — Installation and Operation Manual","iRC board & iRC-UI, wiring, menus/settings, cooling & defrost sequence, diagnostics and error codes","H-IM-iRC · 25009901",60,"Indexed"],
+  ["intelliGen Refrigeration Controller — Quick Start Guide","Guided commissioning: PIN entry, equipment discovery, refrigerant/EXV/defrost selection, start system","25010301",4,"Indexed"],
+  ["intelliGen Refrigeration Controller — Frequently Asked Questions","Scope, warranty, supported refrigerants, compatibility limits (hot gas, QRC, Smart Controller)","(no P/N on document)",3,"Indexed"],
+  ["intelliGen Webserver Card (iWC) & Multi-System Control Card (MSC) — Installation and Operation Manual","Card mounting, local/remote network access, Wi-Fi Direct, lead-lag zones","25010401",20,"Indexed"],
+  ["intelliGen Retrofit Kits for Beacon II & QRC Controller — Installation and Operation Manual","Field retrofit of legacy Low Profile / Center Mount / Medium Profile / Large Unit Cooler controls","25011001",20,"Indexed"],
+  ["intelliGen Controls — Parts, Kits & Price List","iFM kit, MSC/iWC/iIC cards, retrofit kits, ship-loose service parts and pricing","iG Parts List · rev. 03-26",4,"Indexed"],
+  ["Bohn Low Profile Unit Coolers — Technical Guide","BEL/BEG nomenclature, preferred option packages, A2L features, specifications, replacement parts","BN-LOP · Aug 2026",80,"Indexed"]
+];
+
+const CHIPS = {
+  install:["Quick setup steps for a new iRC-equipped unit cooler","Retrofitting a Beacon II or QRC unit cooler to intelliGen","Setting up remote monitoring with the iWC card","Does the Bohn Low Profile unit cooler ship with intelliGen factory-installed?"],
+  service:["What does error code ER16 mean?","iRC UI display won't light up","Replacing a Carel EXV on an iRC-equipped evaporator","Checking a temperature sensor with the ice-water test"],
+  store:["What do the ER, AL and IN codes on the light bar mean?","Why is the light bar on my walk-in cooler red?","Can I monitor my walk-in cooler remotely on my phone?","Compressor isn't running even though the display says it's cooling"],
+  customer:["Can intelliGen be used with hot gas defrost?","What refrigerants does intelliGen support?","How long does intelliGen take to set up?","Who do I call if something's wrong with my walk-in cooler control?"]
+};
+
+const ROLE_LABEL = {install:"Installer", service:"Service Tech", store:"Facility Manager", customer:"Customer"};
+const ROLE_FRAME = {
+  install:["For the installer","Full commissioning depth, with kit selection and quick-setup steps called out."],
+  service:["For the service technician","Diagnostic order of operations, error-code tables and part numbers included."],
+  store:["For the facility manager","What the light bar is telling you, and the point where it becomes a service call."],
+  customer:["For on-site staff","Plain-language answers only. Anything behind the panel goes to a Heatcraft-certified contractor."]
+};
+const TONE = {info:{bg:"#E8F1FA",bd:"#2D6FB7"}, warn:{bg:"#fdf4e3",bd:"#b7791f"}, stop:{bg:"#fdeceb",bd:"#ef3742"}};
+
+const ANSWERS = [
+{id:"errorcodes",kw:["error code","er0","er1","er2","er3","fault code","what does er","alarm code","al0","al1","in0","light bar code"],
+ title:"What do the ER, AL and IN codes mean?",
+ lede:"The iRC posts three families of codes on the OLED display and the light bar: ER (errors), AL (alarms) and IN (information). All three are indexed in the diagnostics section of the installation manual, with a step-by-step action-item table for the errors.",
+ pipe:["Resolved intelliGen iRC controller","Matched the Light Bar, Alarms & Error Indicators section"],
+ steps:[["Read the light bar first","Green = running normally. Red = an alarm on the system, with the flashing unit showing where it originated. Yellow = an error, same flashing-unit rule. White flashing = the unit being identified. No LED = powered off or in service mode."],
+  ["Check the OLED for the specific code","Error and alarm codes (ER01–ER37, AL01–AL12) and information codes (IN01, IN05) are listed in the manual and give the specific fault, not just the color."],
+  ["Look up the code in the troubleshooting guide","The Diagnostics & Troubleshooting Guide gives a step-by-step action item and an 'if not OK' fallback for every error code — most start with a wiring or connection check before any part gets replaced."]],
+ kv:[["Errors","ER01–ER37"],["Alarms","AL01–AL12"],["Information","IN01, IN05"],["Light bar colors","Green / Red / Yellow / White flashing / Off"]],
+ notes:[["info","System-wide indication","If any evaporator on a multi-unit system has an alarm or error, every light bar on that system reflects it — only the flashing unit is the one that actually has the fault."]],
+ cites:[["intelliGen Refrigeration Controller I&O Manual","H-IM-iRC · 25009901 · p. 43"],["intelliGen Refrigeration Controller I&O Manual","H-IM-iRC · 25009901 · p. 53–57"]]},
+
+{id:"lowsuperheat",kw:["er16","low superheat","superheat error","superheat too low"],
+ title:"ER16: Low Superheat — diagnostic steps",
+ lede:"Low superheat is one of the more involved codes — the manual's troubleshooting table works through refrigerant type, coil icing, EXV step position and sensor accuracy before anything gets replaced.",
+ pipe:["Resolved intelliGen iRC controller","Matched ER16 troubleshooting steps"],
+ steps:[["Confirm refrigerant type","Compare the refrigerant actually charged against what's configured on the controller."],
+  ["Check the coil for ice","If iced, defrost the coil and re-check the defrost settings, sensor and heater amps."],
+  ["Check the EXV step position","If the step count isn't 2, replace the board."],
+  ["Check EXV closure","Pump the system down and check for LPS closing or timing out — a bad EXV or a misconfigured LPS setting are both possible causes."],
+  ["Confirm the compressor is actually running","Check overloads and the contactor if it isn't."],
+  ["Compare sensor readings","Check the suction temp sensor against the actual suction line temperature, and the suction pressure transducer against gauge readings."],
+  ["Check box settings on the primary evaporator","Incorrect settings on a multi-unit system's primary evap can produce this error on the others."]],
+ kv:[["Code","ER16 — Low Superheat"],["First check","Refrigerant type match"],["EXV step count expected","2 (else replace board)"]],
+ notes:[["info","First start-up is normal to flag this once","At initial start-up the system may cycle off at 2 minutes and display a low superheat error, then restart itself — this can repeat a few times while the EXV finds the correct position. Don't shut the system off; let it run."]],
+ cites:[["intelliGen Refrigeration Controller I&O Manual","H-IM-iRC · 25009901 · p. 55"],["intelliGen Refrigeration Controller I&O Manual","H-IM-iRC · 25009901 · p. 40"]]},
+
+{id:"startuptrouble",kw:["display not lit","display won't light","screen is blank","no display","compressor not running","compressor doesn't run","shows cooling but","won't turn on","wont turn on","blank screen"],
+ title:"Display won't light, or compressor doesn't run on a call for cooling",
+ lede:"Two related no-start symptoms, both worked from the power side inward before anything on the refrigerant side is suspected.",
+ pipe:["Resolved intelliGen iRC controller","Matched the two 'won't start' rows in the troubleshooting guide"],
+ steps:[["Display not lit — check the power chain in order","Primary power supply and fuses/breakers, then voltage to the transformer, then transformer secondary voltage, then voltage to the iRC board, then the harness to the iRC UI. If all of that checks out, replace the iRC board, then the iRC UI."],
+  ["Cooling call but compressor doesn't run — check the compressor circuit","Compressor internal overload (wait for it to reset), compressor contactor voltage, and whether the contactor is actually pulled in."],
+  ["If there's an Anti-Short Cycle Time Delay Relay (ASCT/TDR) in the condensing unit, remove it","intelliGen has anti-short-cycle protection built in; leaving an electro-mechanical ASCT/TDR in place with intelliGen installed can cause run-time conflicts."]],
+ kv:[["Display-not-lit check order","Power → transformer → iRC board → iRC UI harness"],["ASCT/TDR with intelliGen","Should be removed or bypassed"]],
+ notes:[],
+ cites:[["intelliGen Refrigeration Controller I&O Manual","H-IM-iRC · 25009901 · p. 53"],["intelliGen Refrigeration Controller Quick Start Guide","25010301"]]},
+
+{id:"a2lalarm",kw:["a2l","refrigerant leak","rds","mitigation","er32","er33","er34","er35","er36","er37","al12","leak detection"],
+ title:"A2L refrigerant leak alarms and the Refrigerant Detection System (RDS)",
+ lede:"On A2L unit coolers, a Refrigerant Detection System talks to the iRC over RS-485 and drives a specific set of error and alarm codes distinct from the standard ER/AL set.",
+ pipe:["Resolved intelliGen iRC controller with RDS","Matched A2L alarm & alert codes"],
+ steps:[["ER32 / ER35 — Early Warning / Mitigation","Check all piping in the unit cooler, and in adjacent unit coolers, for refrigerant leaks — cross-over leak detection from a neighboring unit can trigger this. Reset the A2L controller for the RDS once fixed."],
+  ["ER33 / ER34 — Sensor Fault / Service","Check the refrigerant sensor wiring and the sensors themselves for damage; replace as needed, then reset the A2L controller."],
+  ["ER36 — Refrigerant Mismatch","Check the refrigerant selection configured in the intelliGen controller; factory reset and re-select the correct refrigerant."],
+  ["ER37 — Mitigation Controller Communication Loss","Check the communication wiring and RS-485 connection polarity, and confirm the communication LEDs are blinking on both the RDS and the intelliGen controller."],
+  ["AL12 — A2L Override","This is the mitigation-mode alarm — the RDS has detected a leak at the regulatory-defined mitigation level and is performing mitigation actions."]],
+ kv:[["Communication","RS-485 between RDS and iRC"],["Refrigerants requiring RDS","R-454A, R-454C, R-455A per the Quick Start Guide"]],
+ notes:[["stop","Don't skip the cross-check","ER32/ER35 explicitly call for checking adjacent unit coolers, not just the alarming one — cross-over leak detection is a documented cause."]],
+ cites:[["intelliGen Refrigeration Controller I&O Manual","H-IM-iRC · 25009901 · p. 37–38"],["intelliGen Refrigeration Controller I&O Manual","H-IM-iRC · 25009901 · p. 56"]]},
+
+{id:"quicksetup",kw:["quick setup","quick start","commission","commissioning","first start","initial setup","expert pin","default pin","configure the system"],
+ title:"Quick setup steps for a new iRC-equipped unit cooler",
+ lede:"The iRC UI walks a guided setup from the front panel — PIN, equipment discovery, naming, condensing-unit wiring, refrigerant and defrost selection, then start.",
+ pipe:["Resolved intelliGen iRC controller","Matched the Quick Setup From iRC UI sequence"],
+ steps:[["Enter the Expert PIN","Default is 999999. First digit flashes for edit; turn the dial, push to choose, repeat for all six digits."],
+  ["Select configuration mode and discover equipment","Choose EV to configure from the iRC UI; the controller polls and reports how many evaporators it found wired together."],
+  ["Name each unit and set the box temp sensor","Base name (Freezer, Cooler, Unit, Box) plus a suffix (1A–8H); choose which evaporator is primary for box temp if more than one is configured."],
+  ["Confirm condensing unit wiring","If a condensing unit is wired to an evaporator, select which one — special Heatcraft condensing units require intelliGen-specific wiring."],
+  ["Set date, time zone and country, then confirm RDS if applicable","A2L Refrigerant Detection System confirmation is required before continuing when an A2L refrigerant will be selected."],
+  ["Select refrigerant, valve type, and defrost type/style","EXV-Carel is the standard intelliGen valve with the yellow stator."],
+  ["Set the box temp setpoint and start the system",""]],
+ kv:[["Default Expert PIN","999999"],["Standard EXV","EXV-Carel (yellow stator)"],["Max evaporators per condensing unit","8"]],
+ notes:[["info","RDS is mandatory for certain refrigerants","If R-454A, R-454C or R-455A is selected, an OEM-approved Refrigerant Detection System is required and must be confirmed installed to meet regulatory requirements for leak detection and mitigation."],
+  ["stop","Only wire to a Heatcraft-designed condensing unit","Wiring of the intelliGen Refrigeration Controller is only allowed with specifically designed Heatcraft condensing units — connecting to condensing units by other manufacturers is strictly prohibited."]],
+ cites:[["intelliGen Refrigeration Controller Quick Start Guide","25010301"],["intelliGen Refrigeration Controller I&O Manual","H-IM-iRC · 25009901 · p. 5"]]},
+
+{id:"defrosttypes",kw:["defrost type","defrost style","timed defrost","smart defrost","demand defrost","electric defrost","air defrost","hot gas defrost","force defrost"],
+ title:"Choosing a defrost type and style",
+ lede:"Defrost Type is the hardware (Air, Medium Temp Electric, Low Temp Electric); Defrost Style is the scheduling logic layered on top (Timed, Smart or Demand for electric types).",
+ pipe:["Resolved intelliGen iRC controller","Matched Defrost Settings Menu and Defrost Sequence of Operation"],
+ steps:[["Air defrost","Evaporator fans stay on the whole cycle; runs for the Defrost Fail Safe Time, then returns to cooling — no refreeze cycle needed."],
+  ["Electric defrost","Fans cycle off, heaters energize. On multi-evaporator systems, every controller must terminate — on temperature or fail-safe — before the cycle ends for any of them."],
+  ["Timed Interval defrost","Pick a number of defrosts per day; the controller spaces them evenly across 24 hours starting at midnight, then you can hand-adjust each one."],
+  ["Smart defrost","Evaluates frost load and picks from your set defrost opportunity times — guarantees at least one defrost every 24 hours of cooling run time."],
+  ["Demand defrost","Evaluates frost-load magnitude directly and defrosts only when the load exceeds the acceptable minimum — no fixed schedule."]],
+ kv:[["Air defrost default fail-safe","40 min"],["Medium/Low Temp Electric default fail-safe","30 min"],["Defrost end temp SP (Air)","45°F"],["Defrost end temp SP (Electric)","60°F"]],
+ notes:[["stop","Not for hot gas defrost","The intelliGen iRC cannot be used with Hot Gas Defrost systems — confirm defrost type before assuming intelliGen is an option."]],
+ cites:[["intelliGen Refrigeration Controller I&O Manual","H-IM-iRC · 25009901 · p. 29, 34–35"],["intelliGen Refrigeration Controller FAQ","Q20"]]},
+
+{id:"replaceexv",kw:["replace exv","replacing the exv","carel exv","expansion valve replacement","exv won't close","exv leaking","stuck exv"],
+ title:"Replacing a Carel EXV on an iRC-equipped evaporator",
+ lede:"The standard intelliGen EXV is a Carel electronic valve with a bipolar stator motor — it unplugs from the top rather than being rewired.",
+ pipe:["Resolved intelliGen iRC controller","Matched Replacing Carel EXV's procedure"],
+ steps:[["Power off, then disconnect the harness","Loosen the mounting screw holding the harness to the top of the valve and pull the plug straight up."],
+  ["Remove the motor stator","Remove the thumb nut holding the motor stator to the valve, then pull the motor off the top."],
+  ["Braze out the old valve","Heat the braze joints at each end with appropriate PPE, pull the EXV off the distributor connection, then clean both stubs of excess brazing material."],
+  ["Braze in the new EXV","Motor/head must point up or horizontal — never down."],
+  ["Reconnect the motor and harness","Smear a small amount of dielectric grease (or automotive ignition grease — never silicone) between the pins before connecting. Orient the harness plug so the cable runs to the right facing the Carel nameplate."],
+  ["Confirm valve position from the UI","MONITOR menu → EXV STEP POSITION. Under 5 steps means closed; 255 is wide open. Each full manual turn of the stator is about 60 steps."]],
+ kv:[["EXV step position — closed","< 5 steps"],["EXV step position — wide open","255 steps"],["One full manual turn","≈ 60 steps"],["Motor winding voltage while moving","17–30 VAC"]],
+ notes:[["stop","Never aim the flame at the valve, never hit it with tools","Deformation, impact damage, or damage to the electrical parts are all listed as reasons not to install or use the valve."]],
+ cites:[["intelliGen Refrigeration Controller I&O Manual","H-IM-iRC · 25009901 · p. 45, 50"]]},
+
+{id:"replaceboard",kw:["replace the board","replacing irc board","board replacement","main control board","replace iRC UI","user interface replacement"],
+ title:"Replacing the iRC main control board or the iRC UI",
+ lede:"Both are tool-light swaps — four grounding screws and a set of labeled connectors for the board, a ribbon connector and four corner screws for the UI.",
+ pipe:["Resolved intelliGen iRC controller","Matched Replacing iRC Board / Replacing iRC User Interface procedures"],
+ steps:[["Power off and tag the wiring","Unplug input/output terminals, sensor Molex connectors, spade connectors and the iRC UI harness — tag them with marker and tape before pulling anything."],
+  ["Unmount the old board","Remove the four grounding, mounting screws holding it to the mounting plate."],
+  ["Mount and rewire the new board","Same four screws, don't overtighten; reconnect using your tags, checking for tight connections, and don't forget the power supply and iRC UI harness connections."],
+  ["On a multi-unit system, factory reset each affected unit","Then reconfigure through Quick Setup."],
+  ["iRC UI: disconnect the locking ribbon connector","Push both 'ears' of the connector outward from the back of the mounting plate to release it."],
+  ["Swap the UI","Four corner screws; align the gasket carefully on reinstall so it seats against the back of the new UI."]],
+ kv:[["iRC Main Control Board Replacement Kit","28918003S"],["iRCUI User Interface Replacement Kit","28918201S"],["Mounting screws (board)","4, grounding type"]],
+ notes:[["info","No display after a UI swap?","Double check the locking ribbon connector is fully seated and the 'ears' are straight up before suspecting the board."]],
+ cites:[["intelliGen Refrigeration Controller I&O Manual","H-IM-iRC · 25009901 · p. 51–52"],["intelliGen Controls Parts, Kits & Price List","iG Parts List · rev. 03-26"]]},
+
+{id:"sensorcheck",kw:["check a sensor","checking sensors","sensor resistance","ice water test","test the sensor","thermistor resistance"],
+ title:"Checking a temperature sensor with the ice-water test",
+ lede:"You don't need to pull the sensor off the evaporator to check it — compare the Monitor menu reading to a real thermometer, or pull it and check resistance in ice water.",
+ pipe:["Resolved intelliGen iRC controller","Matched Checking Sensors procedure and Resistance/Temperature table"],
+ steps:[["First, try it without removing the sensor","Use the MONITOR menu to read the suspect sensor's value (suction temp, coil temp, aux temp, or room temp) and compare it to a thermometer reading at that same point."],
+  ["If it doesn't match, check resistance directly","Place the sensor in a stirred cup of ice water and measure resistance."],
+  ["Compare against the spec table","At 32°F the sensor should read 32,650 ohms. More than 1,000 ohms off in either direction — replace it."]],
+ kv:[["32°F","32,650 ohms"],["50°F","19,900 ohms"],["68°F","12,490 ohms"],["Replace threshold","± 1,000 ohms from table value"]],
+ notes:[],
+ cites:[["intelliGen Refrigeration Controller I&O Manual","H-IM-iRC · 25009901 · p. 44"]]},
+
+{id:"hotgas",kw:["hot gas defrost","hg defrost","can intelligen be used with hot gas","compatible with hot gas","use with hot gas"],
+ title:"Can intelliGen be used with hot gas defrost?",
+ lede:"No — this is a hard compatibility limit, not a configuration option. It's worth checking before assuming intelliGen is available on a given unit cooler.",
+ pipe:["Checked intelliGen compatibility limits","Matched FAQ Q20"],
+ steps:[],
+ kv:[["Hot Gas Defrost","Not supported by the iRC"],["QRC backward compatibility","Not compatible — intelliGen is a new platform"],["Smart Controller compatibility","Not compatible — new wiring scheme"]],
+ notes:[["stop","Confirm defrost type before quoting a retrofit","If the existing unit cooler uses hot gas defrost, an intelliGen retrofit is not an option regardless of model family."]],
+ cites:[["intelliGen Refrigeration Controller FAQ","Q20–Q22"]]},
+
+{id:"retrofitkit",kw:["retrofit","beacon ii","quick response controller","qrc","upgrade to intelligen","legacy control upgrade"],
+ title:"Retrofitting a Beacon II or QRC unit cooler to intelliGen",
+ lede:"The retrofit kits are 'plug-n-play' — the existing temperature sensors, EXV, EXV cable and pressure transducer carry over, so the field labor is mostly the board and UI swap.",
+ pipe:["Resolved legacy Beacon II / QRC unit cooler","Matched intelliGen Retrofit Kit selection table"],
+ steps:[["Identify the model family","Low Profile, Center Mount / Low Velocity Center Mount, Medium Profile, or Large Unit Cooler — the retrofit kit part number depends on this plus voltage/phase and defrost type."],
+  ["Reuse the pressure transducer","Beacon II and QRC use a 139.7 PSIA transducer. On the iRC UI, go to BOX SETTING / TRANSDUCER TYPE and select 28911201 (139.7 PSIA) to reuse it."],
+  ["Confirm the kit isn't excluded","intelliGen isn't available for Low Profile models at 208-230/3/60 or 460/1/60, or Low Velocity Center Mount at 460/1/60 — the Field Mount (iFM) kit is the fallback for those."],
+  ["Install per the model-specific instructions","Low Profile, Center Mount, Medium Profile and High Profile each have their own instruction pages in the retrofit manual."],
+  ["Run intelliGen System Start Up","Same Quick Setup sequence as a new install."]],
+ kv:[["Install time","Under 30 minutes per kit, per the retrofit manual"],["Reused transducer type","139.7 PSIA (P/N 28911201)"],["Low Profile retrofit kit (stucco/white)","89730101 / 89730102"]],
+ notes:[["info","Not compatible with hot gas defrost","Same limitation as a factory-fresh iRC — a Beacon II or QRC unit on hot gas defrost cannot be retrofitted to intelliGen."]],
+ cites:[["intelliGen Retrofit Kits for Beacon II & QRC Controller I&O Manual","25011001 · p. 1"],["intelliGen Retrofit Kits for Beacon II & QRC Controller I&O Manual","25011001 · p. 18"]]},
+
+{id:"remoteaccess",kw:["remote monitoring","remote access","iwc","webserver card","wi-fi direct","msc card","monitor from my phone","lead-lag"],
+ title:"Setting up remote monitoring with the iWC or MSC card",
+ lede:"Both cards mount to the same pin header on the iRC board; the difference is scope — one webserver card (iWC) per system, or a Multi-System Control card (MSC) for lead-lag redundancy across up to 32 systems.",
+ pipe:["Resolved intelliGen remote access card","Matched iWC & MSC I&O Manual installation and network setup"],
+ steps:[["Power off the iRC board before mounting the card","There's a row of pins on the back of the card that plug into a socket near the center of the board, above the CPU — take care not to bend them, then secure with #6-32x1 stainless screws, not over-tightened."],
+  ["Connect for local access","Run a CAT5e cable from the card to a LAN port on a router; a smart device on the same router's SSID can open the card's webserver pages."],
+  ["Connect for remote access","Once the router is internet-enabled, register the system to the intelliGen online portal for access from any internet-connected device."],
+  ["Or skip the router entirely","Both cards support Wi-Fi Direct point-to-point connection out of the box; the MSC card ships with the antenna installed, the iWC does not."]],
+ kv:[["iWC per system","1 (up to 8 evaporators)"],["MSC systems supported","Up to 32, with lead-lag zones up to 4 systems each"],["Card mounting screws","#6-32x1 stainless steel"]],
+ notes:[],
+ cites:[["intelliGen Webserver Card (iWC) & Multi-System Control Card (MSC) I&O Manual","25010401 · p. 1–4"],["intelliGen Controls Parts, Kits & Price List","iG Parts List · rev. 03-26"]]}
+];
+
+const OFFSCOPE = ["russell refrigeration","keeprite","bristol compressors","tecumseh compressor","copeland"];
+
+const DOCPAGES = {
+  irc:{tagline:"Factory-Mounted Evaporator Refrigeration Controller",badge:"Controller",
+    details:"The intelliGen Refrigeration Controller (iRC) is a factory-mounted electronic control for evaporators that provides automatic superheat adjustment, room temperature control and intelligent defrost — replacing the mechanical thermostats, solenoid valves, TXVs, defrost time clocks and contactors used in traditional electro-mechanical control. It supports up to 8 evaporators piped to a single condensing unit, with a factory-standard Carel electronic expansion valve. It is not available as a field retrofit for arbitrary equipment — see the Field Mount (iFM) kit and Beacon II/QRC retrofit kit entries in Equipment Lookup for those paths.",
+    features:["OLED display with turn-and-press knob navigation and a status light bar (green/red/yellow/white)","Automatic superheat control, evaluated every 20–45 seconds depending on whether a condensing unit is wired","Timed, Smart or Demand defrost styles on electric defrost types; Air defrost runs fixed to the Fail Safe time","USB port for firmware updates and up to 60 days of onboard data logging at 1-minute intervals","A2L refrigerant support with RDS communication over RS-485 for leak detection and mitigation alarms"],
+    benefits:["Setup: guided Quick Setup from the front panel, roughly 2 minutes versus 2 hours for mechanical controls, per the FAQ","Warranty: 3 years from install or 42 months from shipment, plus a 1-year extension for Heatcraft-certified contractors","Parts: warranty stock held in Tifton GA, Dallas TX, Eastvale CA and Louisville KY for next-day availability"],
+    resources:[["Installation and Operation Manual","H-IM-iRC · 25009901"],["Quick Start Guide","25010301"],["Frequently Asked Questions","(no P/N on document)"]]},
+  "iwc-msc":{tagline:"Remote Monitoring & Multi-System Control Cards",badge:"Accessory",
+    details:"The Webserver Card (iWC) and Multi-System Control Card (MSC) are optional, field-installable add-ons that mount to the same pin header on the iRC board. The iWC serves graphic webserver pages to any browser on the local network or, once registered, over the internet. The MSC includes everything the iWC does plus lead-lag control across multiple systems, organized into sections and zones, for up to 32 systems total.",
+    features:["Wi-Fi Direct point-to-point connection out of the box (antenna included on MSC, not on iWC)","CAT5e / Ethernet connection to a network router for local or internet-registered remote access","Lead-lag zones (up to 4 systems per zone) on the MSC card for redundancy and even run-time balancing","A separate iIC Integration Card adds BACnet/Modbus connectivity to a Building Automation System"],
+    benefits:["Contractors: no ladder climbing to check status once Wi-Fi Direct or remote access is configured","Facilities: alerts by web, text or email when paired with an iWC and internet connection"],
+    resources:[["iWC & MSC Installation and Operation Manual","25010401"],["intelliGen Controls Parts, Kits & Price List","iG Parts List · rev. 03-26"]]},
+  "bel-lop":{tagline:"Bohn Low Profile Unit Cooler",badge:"Bohn",
+    details:"Low Profile is one of five unit cooler model families across which the intelliGen controller ships as a factory option — confirmed in the Bohn Low Profile Technical Guide's Preferred Option Packages tables (B0200/B0201 for HFC refrigerants, G0210–G0212 for A2L). The nomenclature identifies Bohn ('B') as the brand and 'L' as Low Profile in the evaporator style code. Hot gas defrost models are not intelliGen-compatible.",
+    features:["intelliGen factory-mounted option: tested and calibrated with EXV, pressure transducer, temperature sensors, control board and UI","2-Speed EC motors standard on Air Defrost models; 1-Speed EC on Electric Defrost and Hot Gas Defrost models","A2L and A1/HFC dual-refrigerant compatible models, with optional factory-mounted Refrigerant Detection System (RDS)","Hinged, removable front access panels; molded, NSF/UL-sanitation-rated fan guards"],
+    benefits:["Serviceability: quick-removal fan guard/motor assembly, motors plug into a wiring harness","Regulatory: red service-valve tags and A2L labeling included on A2L-configured units"],
+    resources:[["Bohn Low Profile Unit Coolers — Technical Guide","BN-LOP · Aug 2026"],["intelliGen Refrigeration Controller I&O Manual","H-IM-iRC · 25009901"]]},
+  "legacy-retrofit":{tagline:"Beacon II / QRC Unit Coolers — Retrofit Candidates",badge:"Retrofit",
+    details:"Beacon II™ and Quick Response Controller™ (QRC) are the legacy Heatcraft evaporator controls that intelliGen retrofit kits are designed to replace, across Low Profile, Center Mount, Low Velocity Center Mount, Medium Profile and Large/High Profile unit cooler families. The retrofit is designed to minimize field labor — the existing temperature sensors, EXV, EXV cable and pressure transducer are reused rather than replaced.",
+    features:["'Plug-n-Play' retrofit, per the manual under 30 minutes of install labor","Reuses the existing 139.7 PSIA pressure transducer (reconfigured as P/N 28911201 in the iRC UI)","Kit part number depends on model family, voltage/phase, model size and color finish (stucco/white)","Not available for every combination — Low Profile at 208-230/3/60 or 460/1/60, and Low Velocity Center Mount at 460/1/60, fall back to the Field Mount (iFM) kit"],
+    benefits:["Consolidation: 'the power of ONE platform' — replaces two legacy control lines with one","Field-tech familiarity: same Quick Setup sequence and UI as a factory-new intelliGen unit"],
+    resources:[["intelliGen Retrofit Kits for Beacon II & QRC Controller I&O Manual","25011001"],["intelliGen Controls Parts, Kits & Price List","iG Parts List · rev. 03-26"]]},
+  ifm:{tagline:"intelliGen Field Mount (iFM) Kit",badge:"Field-Mount",
+    details:"The iFM kit is the universal, field-installable version of the iRC — for new unit coolers that didn't ship with factory-mounted controls, or to bring an existing mechanical-control unit cooler onto the intelliGen platform without a model-specific retrofit kit. It ships pre-assembled in a durable, water-resistant, IP65-rated case and can be remote-mounted up to 40 ft from the equipment.",
+    features:["IP65 rated for indoor and outdoor applications","Pre-assembled hardware in a water-resistant case","Remote-mountable up to 40 ft from the equipment being controlled","Same guided Quick Setup, light bar and OLED UI as a factory-mounted iRC"],
+    benefits:["Coverage: the documented fallback for the specific voltage/phase combinations the model-specific retrofit kits don't cover","Flexibility: works for new-build unit coolers without factory controls, not just retrofits"],
+    resources:[["intelliGen Controls Parts, Kits & Price List","iG Parts List · rev. 03-26"],["intelliGen Refrigeration Controller I&O Manual","H-IM-iRC · 25009901"]]}
+};
+
+const PANE_META = {
+  chat:["Technical Inquiry","Ask about the intelliGen Refrigeration Controller, its accessory cards, or intelliGen-equipped unit coolers"],
+  doc:["Product Documentation","Details, features and downloadable resources for the equipment in context"],
+  fleet:["Equipment Lookup","Resolve a nameplate or model to its product family before answering"],
+  library:["Document Library","Manuals, guides and bulletins available to the assistant"],
+  parts:["Parts & Diagrams","intelliGen board, card and EXV part numbers"],
+  agent:["Agent Management","Retrieval scope, guardrails and model routing"],
+  users:["User Access","Who can ask what, and how deep the answers go"]
+};
+
+class Component extends DCLogic {
+  state = {
+    pane: "chat",
+    role: this.props.defaultRole || "service",
+    unitId: "irc",
+    messages: [],
+    query: "",
+    fleetQ: "",
+    history: [],
+    toast: "",
+    guards: [true, true, true, false],
+    seq: 1
+  };
+
+  componentDidMount(){ this.greet(); }
+  componentWillUnmount(){ clearTimeout(this._t); clearTimeout(this._toast); }
+
+  unit(){ return EQUIP.find(e => e.id === this.state.unitId) || EQUIP[0]; }
+
+  toast(msg){
+    this.setState({toast: msg});
+    clearTimeout(this._toast);
+    this._toast = setTimeout(() => this.setState({toast: ""}), 2200);
+  }
+
+  go(pane){ this.setState({pane}); window.scrollTo(0, 0); }
+
+  greet(){
+    this.setState({messages: []});
+  }
+
+  ask(text){
+    const q = (text || "").trim();
+    if(!q) return;
+    const u = this.unit();
+    const base = this.state.seq;
+    const msgs = this.state.messages.concat([
+      {id: base, kind: "user", text: q},
+      {id: base + 1, kind: "thinking", text: "Searching " + u.family + " documentation…"}
+    ]);
+    const hist = [{q: q.length > 40 ? q.slice(0, 40) + "…" : q, model: u.model}].concat(this.state.history).slice(0, 6);
+    this.setState({messages: msgs, seq: base + 2, query: "", history: hist});
+    clearTimeout(this._t);
+    this._t = setTimeout(() => {
+      const answer = this.resolve(q);
+      const next = this.state.messages.map(m => m.id === base + 1 ? Object.assign({id: m.id}, answer) : m);
+      this.setState({messages: next}, () => this.scrollToMsg(base + 1));
+    }, 750);
+  }
+
+  scrollToMsg(id){
+    const el = document.getElementById("msg-" + id);
+    if(!el) return;
+    const bar = document.getElementById("topbar");
+    const offset = (bar ? bar.getBoundingClientRect().height : 0) + 16;
+    const top = window.scrollY + el.getBoundingClientRect().top - offset;
+    window.scrollTo({top: Math.max(0, top), behavior: "smooth"});
+  }
+
+  resolve(q){
+    const s = q.toLowerCase();
+    const u = this.unit();
+    const brand = OFFSCOPE.find(b => s.includes(b));
+    if(brand){
+      const B = brand.replace(/\b\w/g, c => c.toUpperCase());
+      return {kind:"answer", model:u.model,
+        title:"That equipment isn't in the intelliGen library",
+        lede:"You've asked about " + B + " equipment. This assistant answers only from Heatcraft intelliGen documentation and Heatcraft-supplied components, so it will not guess at a procedure for another manufacturer's control or compressor.",
+        pipe:["Searched the Heatcraft intelliGen document set","No matching equipment in the intelliGen library"],
+        steps:[], kv:[],
+        notes:[["stop","Why this matters","Refrigerant charge, defrost logic and control set points are not transferable between manufacturers. A plausible-sounding answer from the wrong manual is worse than no answer."],
+               ["info","What I can do","If a Heatcraft unit cooler at this site has a " + B + " component fitted as a field replacement, give me the Heatcraft model and I'll answer for everything on the intelliGen side of that interface."]],
+        cites:[], fig:null};
+    }
+    let best = null, bestScore = 0;
+    for(const a of ANSWERS){
+      let sc = 0;
+      for(const k of a.kw) if(s.includes(k)) sc += k.length > 7 ? 3 : 2;
+      if(sc > bestScore){ bestScore = sc; best = a; }
+    }
+    if(!best){
+      return {kind:"answer", model:u.model,
+        title:"Narrow it down for me",
+        lede:"I have the full document set for the " + u.model + " loaded, but that could point at several sections. Tell me what the equipment is actually doing, or start from one of the suggestions below the message box.",
+        pipe:["Resolved " + u.model + " — " + u.family, "No single section matched with confidence"],
+        steps:[], kv:[],
+        notes:[["info","Rather than guess","The assistant asks instead of picking the closest-looking procedure. A wrong procedure on a live unit costs more than a follow-up question."]],
+        cites:[], fig:null};
+    }
+    return {kind:"answer", model:u.model, title:best.title, lede:best.lede, pipe:best.pipe || [],
+      steps:best.steps || [], kv:best.kv || [], notes:best.notes || [], cites:best.cites || [], fig:best.fig || null, img:best.img || []};
+  }
+
+  renderVals(){
+    const st = this.state;
+    const u = this.unit();
+    const meta = PANE_META[st.pane];
+    const nav = (id, label) => ({
+      id, label, go: () => this.go(id),
+      bg: st.pane === id ? "#163A57" : "transparent",
+      mark: st.pane === id ? "inset 3px 0 0 #48C1E1" : "none"
+    });
+    const [roleTitle, roleNote] = ROLE_FRAME[st.role];
+    const dp = DOCPAGES[u.id] || DOCPAGES.irc;
+
+    const messages = st.messages.map(m => {
+      if(m.kind === "user") return {id: m.id, isUser: true, text: m.text, who: ROLE_LABEL[st.role]};
+      if(m.kind === "thinking") return {id: m.id, isThinking: true, text: m.text};
+      return {
+        id: m.id, isAnswer: true, model: m.model, title: m.title, lede: m.lede,
+        roleTitle, roleNote,
+        pipe: (m.pipe || []).map((t, i) => ({id: i, t})),
+        hasSteps: (m.steps || []).length > 0,
+        steps: (m.steps || []).map(([t, d], i) => ({id: i, n: i + 1, t, d})),
+        hasKv: (m.kv || []).length > 0,
+        kv: (m.kv || []).map(([k, v], i) => ({id: i, k, v})),
+        notes: (m.notes || []).map(([tone, t, d], i) => ({id: i, t, d, bg: (TONE[tone] || TONE.info).bg, bd: (TONE[tone] || TONE.info).bd})),
+        hasImg: !!(m.img && m.img.length), imgs: (m.img || []).map(([src, cap], i) => ({id: i, src, cap})),
+        cites: (m.cites || []).map(([doc, ref], i) => ({id: i, doc, ref, open: () => this.toast("Opening " + doc + " — " + ref)}))
+      };
+    });
+
+    const fq = st.fleetQ.toLowerCase();
+    const fleetList = EQUIP.filter(e => !fq || [e.model, e.family, e.line, e.tags.join(" ")].join(" ").toLowerCase().includes(fq)).map(e => ({
+      id: e.id, model: e.model, family: e.family, line: e.line, doc: e.doc,
+      tagList: e.tags.map((t, i) => ({id: i, t})),
+      pick: () => { this.setState({unitId: e.id, pane: "chat"}, () => { this.greet(); this.toast("Equipment in context: " + e.model); }); }
+    }));
+
+    const hasAsked = st.messages.length > 0;
+
+    return {
+      paneTitle: meta[0], paneSub: meta[1],
+      isChat: st.pane === "chat", isFleet: st.pane === "fleet", isLibrary: st.pane === "library",
+      isParts: st.pane === "parts", isAgent: st.pane === "agent", isUsers: st.pane === "users",
+      isDoc: st.pane === "doc",
+      hasAsked: hasAsked, showFaqHero: !hasAsked,
+      chatCols: hasAsked ? "minmax(0,1fr) 320px" : "minmax(0,1fr)",
+      roleNote: roleNote,
+      dp: dp,
+      hasDpPhoto: !!dp.hero, dpPhoto: dp.hero || "",
+      dpFeatures: dp.features.map((t,i)=>({id:i,t})),
+      dpBenefits: dp.benefits.map((t,i)=>({id:i,t})),
+      dpResources: dp.resources.map(([t,pn],i)=>({id:i,t,pn,open:()=>this.toast("Opening "+t+" — "+pn)})),
+      dpAsk: () => { this.setState({pane:"chat"}, () => this.greet()); },
+      navWork: [nav("chat","Technical Inquiry"), nav("doc","Product Documentation"), nav("fleet","Equipment Lookup"), nav("library","Document Library"), nav("parts","Parts & Diagrams")],
+      navAdmin: [nav("agent","Agent Management"), nav("users","User Access")],
+      history: st.history.map((h, i) => ({id: i, q: h.q, model: h.model, open: () => this.toast("Prototype — chat history is retained per user in the live build")})),
+      newInquiry: () => { this.setState({pane: "chat"}, () => this.greet()); },
+      roles: Object.keys(ROLE_LABEL).map(k => ({
+        id: k, label: ROLE_LABEL[k],
+        bg: st.role === k ? "#003263" : "transparent",
+        fg: st.role === k ? "#ffffff" : "#5d7086",
+        fw: st.role === k ? "500" : "400",
+        pick: () => { this.setState({role: k}, () => { this.greet(); this.toast("Answering as: " + ROLE_LABEL[k]); }); }
+      })),
+      messages,
+      chips: (CHIPS[st.role] || []).map((t, i) => ({id: i, t, ask: () => this.ask(t)})),
+      query: st.query,
+      onQuery: (e) => this.setState({query: e.target.value}),
+      onKey: (e) => { if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); this.ask(this.state.query); } },
+      send: () => this.ask(this.state.query),
+      unit: u, unitId: st.unitId,
+      unitTags: u.tags.map((t, i) => ({id: i, t})),
+      unitStats: [{id:1,k:"Application",v:u.temp},{id:2,k:"Refrigerant",v:u.ref},{id:3,k:"Controls",v:u.ctrl},{id:4,k:"Primary doc",v:u.doc}],
+      equipment: EQUIP.map(e => ({id: e.id, optLabel: e.model + " — " + e.family})),
+      onUnit: (e) => { const id = e.target.value; this.setState({unitId: id}, () => this.greet()); },
+      fleetQ: st.fleetQ,
+      onFleetQ: (e) => this.setState({fleetQ: e.target.value}),
+      fleetList,
+      docs: DOCS.map(([title, covers, pn, pages, status], i) => ({
+        id: i, title, covers, pn, pages, status,
+        bg: status === "Indexed" ? "#e6f0f9" : "#fdf4e3",
+        fg: status === "Indexed" ? "#1E5FA0" : "#8a5a00"
+      })),
+      partsRows: [
+        {id:1,ref:"1",name:"iRC Main Control Board Replacement Kit",pn:"28918003S",note:"All iRC-equipped unit coolers"},
+        {id:2,ref:"2",name:"iRCUI User Interface Replacement Kit",pn:"28918201S",note:"All iRC-equipped unit coolers"},
+        {id:3,ref:"3",name:"iWC Webserver Card Replacement Kit",pn:"28918301S",note:"One per system, up to 8 evaporators"},
+        {id:4,ref:"4",name:"MSC Multi-System Control Card w/ Lead-Lag",pn:"28918302S",note:"Up to 32 systems, lead-lag zones of 4"},
+        {id:5,ref:"5",name:"Carel EXV Replacement Kit — 3/8\" x 3/8\" Conn",pn:"29326101",note:"E2V11FWAE0 — smallest connection size"},
+        {id:6,ref:"6",name:"Pressure Transducer, 0–300 PSIA",pn:"28911202",note:"Ship-loose / service replacement"},
+        {id:7,ref:"7",name:"Door Switch Kit (incl. 2 ft cable)",pn:"22543102",note:"Optional door-open input"},
+        {id:8,ref:"8",name:"intelliGen Field Mount (iFM) Kit",pn:"59755002",note:"25 ft sensor leads; new install or retrofit without a model-specific kit"}
+      ],
+      pipeline: [
+        {id:1,n:1,t:"Resolve the equipment",d:"Nameplate, model or family becomes a resolved intelliGen equipment entry — controller, card, or unit cooler family — before any search runs.",accent:"#003263"},
+        {id:2,n:2,t:"Search only that family's documents",d:"Hybrid keyword + semantic retrieval across the intelliGen pilot document set, scoped to the resolved family.",accent:"#2D6FB7"},
+        {id:3,n:3,t:"Compose the procedure",d:"Steps, part numbers, error-code table entries and the reference values that match — assembled in the order a tech would work it.",accent:"#48C1E1"},
+        {id:4,n:4,t:"Inject safety and role framing",d:"Refrigerant handling, A2L leak-detection warnings, and the line between install / service / facility-manager depth.",accent:"#3079BC"},
+        {id:5,n:5,t:"Guardrail check",d:"Not in the Heatcraft manuals? The assistant says so and escalates. It never fills the gap with another manufacturer's procedure.",accent:"#b7791f"}
+      ],
+      guardrails: [
+        {id:0,on:st.guards[0],t:"Heatcraft sources only",d:"Refuse and say so when the manuals don't cover it. No general-web inference inside the answer body.",toggle:()=>this.toggleGuard(0)},
+        {id:1,on:st.guards[1],t:"Cite page-level or don't answer",d:"Every claim carries a document P/N and page reference.",toggle:()=>this.toggleGuard(1)},
+        {id:2,on:st.guards[2],t:"Safety interlock language",d:"Refrigerant handling and A2L leak-mitigation warnings are injected, never optional.",toggle:()=>this.toggleGuard(2)},
+        {id:3,on:st.guards[3],t:"Supplemental web research",d:"Shown in a separate, clearly labeled block — off by default for customer-facing use.",toggle:()=>this.toggleGuard(3)}
+      ],
+      routing: [
+        {id:1,k:"Primary answer engine",v:"Claude"},{id:2,k:"Standby engine",v:"Gemini"},
+        {id:3,k:"Embeddings",v:"Hybrid keyword + semantic"},{id:4,k:"Figure extraction",v:"Vision pass on ingest"},
+        {id:5,k:"Median first token",v:"1.4 s"},{id:6,k:"Answers with citations",v:"100%"}
+      ],
+      users: [
+        {id:1,name:"M. Alvarez",org:"Heatcraft Technical Services — Inside Support",role:"Service Tech",scope:"Full service + parts",last:"4 min ago"},
+        {id:2,name:"D. Okafor",org:"Contract installer — THE HUB registered",role:"Installer",scope:"I&O manuals, Quick Start, commissioning",last:"1 hr ago"},
+        {id:3,name:"J. Whitfield",org:"Facilities Engineering — multi-site walk-in program",role:"Facility Manager",scope:"Operation, alarms, remote monitoring",last:"Yesterday"},
+        {id:4,name:"S. Bhatt",org:"On-site kitchen staff",role:"Customer",scope:"Operation & care only",last:"2 days ago"},
+        {id:5,name:"Kiosk — Distributor Training Center",org:"Heatcraft Learning Center, Stone Mountain GA",role:"Shared device",scope:"Training & knowledge base",last:"3 days ago"}
+      ],
+      actSendPhone: () => this.toast("Sent to your phone"),
+      actOrder: () => this.toast("Checking your local wholesaler for stock — warranty parts also ship next-day from Tifton GA, Dallas TX, Eastvale CA and Louisville KY"),
+      actEscalate: () => this.toast("Escalated to Heatcraft Technical Support ((800) 321-1881 / after-hours (877) 482-7238) with the full transcript"),
+      actHelpful: () => this.toast("Marked helpful — logged for the documentation team"),
+      actUpload: () => this.toast("Prototype — in the live build the PDF is chunked and searchable in minutes"),
+      actStock: () => this.toast("Opening THE HUB for model selection and quoting…"),
+      actExploded: () => this.toast("Opening the iRC Board Layout figure — H-IM-iRC · 25009901, p. 2"),
+      actInvite: () => this.toast("Invite scoped to a role"),
+      actSso: () => this.toast("Mapping THE HUB registration groups to assistant roles"),
+      actExport: () => this.toast("Usage export queued"),
+      hasToast: !!st.toast, toast: st.toast
+    };
+  }
+
+  toggleGuard(i){
+    const g = this.state.guards.slice();
+    g[i] = !g[i];
+    this.setState({guards: g});
+    this.toast(g[i] ? "Guardrail enabled" : "Guardrail disabled — prototype only");
+  }
+}
+
+</script>
+</body>
+</html>
