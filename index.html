@@ -386,7 +386,7 @@
             <tbody>
               <sc-for list="{{ docs }}" as="d" hint-placeholder-count="6">
                 <tr>
-                  <td style="padding:10px 14px;border-bottom:1px solid #eef3f8">{{ d.title }}</td>
+                  <td style="padding:10px 14px;border-bottom:1px solid #eef3f8"><a href="{{ d.url }}" target="_blank" rel="noopener">{{ d.title }}</a></td>
                   <td style="padding:10px 14px;border-bottom:1px solid #eef3f8;color:#5d7086">{{ d.covers }}</td>
                   <td style="padding:10px 14px;border-bottom:1px solid #eef3f8;font-family:'IBM Plex Mono',monospace">{{ d.pn }}</td>
                   <td style="padding:10px 14px;border-bottom:1px solid #eef3f8;font-family:'IBM Plex Mono',monospace">{{ d.pages }}</td>
@@ -530,13 +530,13 @@ const EQUIP = [
 ];
 
 const DOCS = [
-  ["intelliGen Refrigeration Controller — Installation and Operation Manual","iRC board & iRC-UI, wiring, menus/settings, cooling & defrost sequence, diagnostics and error codes","H-IM-iRC · 25009901",60,"Indexed"],
-  ["intelliGen Refrigeration Controller — Quick Start Guide","Guided commissioning: PIN entry, equipment discovery, refrigerant/EXV/defrost selection, start system","25010301",4,"Indexed"],
-  ["intelliGen Refrigeration Controller — Frequently Asked Questions","Scope, warranty, supported refrigerants, compatibility limits (hot gas, QRC, Smart Controller)","(no P/N on document)",3,"Indexed"],
-  ["intelliGen Webserver Card (iWC) & Multi-System Control Card (MSC) — Installation and Operation Manual","Card mounting, local/remote network access, Wi-Fi Direct, lead-lag zones","25010401",20,"Indexed"],
-  ["intelliGen Retrofit Kits for Beacon II & QRC Controller — Installation and Operation Manual","Field retrofit of legacy Low Profile / Center Mount / Medium Profile / Large Unit Cooler controls","25011001",20,"Indexed"],
-  ["intelliGen Controls — Parts, Kits & Price List","iFM kit, MSC/iWC/iIC cards, retrofit kits, ship-loose service parts and pricing","iG Parts List · rev. 03-26",4,"Indexed"],
-  ["Bohn Low Profile Unit Coolers — Technical Guide","BEL/BEG nomenclature, preferred option packages, A2L features, specifications, replacement parts","BN-LOP · Aug 2026",80,"Indexed"]
+  ["intelliGen Refrigeration Controller — Installation and Operation Manual","iRC board & iRC-UI, wiring, menus/settings, cooling & defrost sequence, diagnostics and error codes","H-IM-iRC · 25009901",60,"Indexed","docs/H-IM-iRC.pdf"],
+  ["intelliGen Refrigeration Controller — Quick Start Guide","Guided commissioning: PIN entry, equipment discovery, refrigerant/EXV/defrost selection, start system","25010301",4,"Indexed","docs/intelliGen-QuickStart.pdf"],
+  ["intelliGen Refrigeration Controller — Frequently Asked Questions","Scope, warranty, supported refrigerants, compatibility limits (hot gas, QRC, Smart Controller)","(no P/N on document)",3,"Indexed","docs/intelliGen-FAQ.pdf"],
+  ["intelliGen Webserver Card (iWC) & Multi-System Control Card (MSC) — Installation and Operation Manual","Card mounting, local/remote network access, Wi-Fi Direct, lead-lag zones","25010401",20,"Indexed","docs/intelliGen-iWC-MSC-IO-Manual.pdf"],
+  ["intelliGen Retrofit Kits for Beacon II & QRC Controller — Installation and Operation Manual","Field retrofit of legacy Low Profile / Center Mount / Medium Profile / Large Unit Cooler controls","25011001",20,"Indexed","docs/intelliGen-Retrofit-BN2-QRC-IO-Manual.pdf"],
+  ["intelliGen Controls — Parts, Kits & Price List","iFM kit, MSC/iWC/iIC cards, retrofit kits, ship-loose service parts and pricing","iG Parts List · rev. 03-26",4,"Indexed","docs/intelliGen-Parts-List.pdf"],
+  ["Bohn Low Profile Unit Coolers — Technical Guide","BEL/BEG nomenclature, preferred option packages, A2L features, specifications, replacement parts","BN-LOP · Aug 2026",80,"Indexed","docs/BN-LOP-Bulletin.pdf"]
 ];
 
 const CHIPS = {
@@ -919,8 +919,8 @@ class Component extends DCLogic {
       fleetQ: st.fleetQ,
       onFleetQ: (e) => this.setState({fleetQ: e.target.value}),
       fleetList,
-      docs: DOCS.map(([title, covers, pn, pages, status], i) => ({
-        id: i, title, covers, pn, pages, status,
+      docs: DOCS.map(([title, covers, pn, pages, status, url], i) => ({
+        id: i, title, covers, pn, pages, status, url,
         bg: status === "Indexed" ? "#e6f0f9" : "#fdf4e3",
         fg: status === "Indexed" ? "#1E5FA0" : "#8a5a00"
       })),
